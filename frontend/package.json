@@ -9,14 +9,11 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html --public-url /omega_study_center/ --dist-dir dist --no-source-maps",
-    "pages": "npm run build && rm -rf ../docs && mkdir -p ../docs && cp dist/index.html dist/*.js dist/*.css ../docs/ && cp public/404.html ../docs/404.html && cp public/.nojekyll ../docs/.nojekyll",
-    "deploy": "npm run pages && gh-pages -d dist",
     "clean": "node clean.js",
     "test": "jest"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
-    "gh-pages": "^6.3.0",
     "parcel": "^2.16.4",
     "process": "^0.11.10"
   },

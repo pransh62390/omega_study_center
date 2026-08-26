@@ -9,26 +9,28 @@ function userList(data) {
   return [];
 }
 
+function loginNames(entry) {
+  return [...new Set(
+    [entry.username, entry.email]
+      .map((value) => String(value || "").trim())
+      .filter(Boolean)
+  )];
+}
+
 function parseUsers(data) {
   return userList(data)
     .map((entry) => ({
-      username: String(entry.username || "").trim(),
+      names: loginNames(entry),
       password: String(entry.password || ""),
     }))
-    .filter((entry) => entry.username);
+    .filter((entry) => entry.names.length > 0);
 }
 
 function credentialsMatch(users, username, password) {
   const enteredUser = username.trim();
   return users.some(
-    (user) => user.username === enteredUser && user.password === password
+    (user) => user.names.includes(enteredUser) && user.password === password
   );
-}
-
-function matchesFallback(username, password) {
-  const validUser = process.env.REACT_APP_USERNAME;
-  const validPass = process.env.REACT_APP_PASSWORD;
-  return Boolean(validUser && username === validUser && password === validPass);
 }
 
 async function loadUsers() {
@@ -37,7 +39,8 @@ async function loadUsers() {
     try {
       const res = await fetchFresh(usersUrl, { mode: "cors", referrerPolicy: "origin" });
       if (res.ok) {
-        return parseUsers(await res.json());
+        const users = parseUsers(await res.json());
+        if (users.length > 0) return users;
       }
     } catch (err) {
       console.error("Error fetching users from S3:", err);
@@ -67,20 +70,13 @@ export default function Login() {
 
     try {
       const users = await loadUsers();
-      if (
-        credentialsMatch(users, enteredUser, password) ||
-        matchesFallback(enteredUser, password)
-      ) {
+      if (credentialsMatch(users, enteredUser, password)) {
         completeLogin();
         return;
       }
       setError(true);
     } catch (err) {
       console.error("Error checking credentials:", err);
-      if (matchesFallback(enteredUser, password)) {
-        completeLogin();
-        return;
-      }
       setError(true);
     } finally {
       setSubmitting(false);
