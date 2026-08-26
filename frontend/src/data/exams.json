@@ -1,0 +1,16 @@
+{
+  "exams": [
+    {
+      "id": "punjab-lecturer-cadre",
+      "name": "Punjab Lecturer Cadre",
+      "papers": [
+        {
+          "id": "test-2",
+          "name": "Test 2",
+          "questionPdf": "/pdfs/sample-exam/paper-1/Test-2.pdf",
+          "answerPdf": ""
+        }
+      ]
+    }
+  ]
+}
