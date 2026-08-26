@@ -1,0 +1,45 @@
+{
+  "notes": [
+    "Paste bucketPolicy into S3 -> Permissions -> Bucket policy (replace the old one).",
+    "Paste cors into S3 -> Permissions -> CORS (replace the old one).",
+    "Cross-origin fetches from GitHub Pages send Referer as https://pransh62390.github.io/ (origin only), not the /omega_study_center path. That is why the previous policy blocked the site.",
+    "CORS AllowedOrigins is origin only: https://pransh62390.github.io",
+    "Remove localhost entries after you finish local testing."
+  ],
+  "bucketPolicy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AllowGetFromGitHubPagesOnly",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::pransh-bucket/*",
+        "Condition": {
+          "StringLike": {
+            "aws:Referer": [
+              "https://pransh62390.github.io",
+              "https://pransh62390.github.io/",
+              "https://pransh62390.github.io/*",
+              "http://localhost:1234",
+              "http://localhost:1234/",
+              "http://localhost:1234/*"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "cors": [
+    {
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "HEAD"],
+      "AllowedOrigins": [
+        "https://pransh62390.github.io",
+        "http://localhost:1234"
+      ],
+      "ExposeHeaders": ["ETag", "Content-Length", "Content-Type"],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}

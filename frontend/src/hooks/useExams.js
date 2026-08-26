@@ -23,7 +23,7 @@ export default function useExams() {
   useEffect(() => {
     if (s3Url) {
       // Fetch from S3
-      fetch(s3Url)
+      fetch(s3Url, { mode: "cors", referrerPolicy: "origin" })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch exams data");
           return res.json();
