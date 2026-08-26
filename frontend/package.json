@@ -8,8 +8,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html --public-url .",
-    "deploy": "npm run build && cp public/.nojekyll dist/.nojekyll && cp public/404.html dist/404.html && gh-pages -d dist",
+    "build": "parcel build index.html --public-url /omega_study_center/ --dist-dir dist --no-source-maps",
+    "pages": "npm run build && rm -rf ../docs && mkdir -p ../docs && cp dist/index.html dist/*.js dist/*.css ../docs/ && cp public/404.html ../docs/404.html && cp public/.nojekyll ../docs/.nojekyll",
+    "deploy": "npm run pages && gh-pages -d dist",
     "clean": "node clean.js",
     "test": "jest"
   },
