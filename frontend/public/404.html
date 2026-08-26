@@ -4,21 +4,10 @@
     <meta charset="utf-8">
     <title>Exam Portal</title>
     <script type="text/javascript">
-      // For GitHub Pages subfolder hosting:
-      // We need to redirect to the index.html while preserving the path.
-      // If we are at /omega_study_center/exams, we want to stay there
-      // but force GitHub to serve index.html.
-      
-      var path = window.location.pathname;
-      
-      // If the path doesn't start with our repo name, we force it.
-      if (!path.startsWith('/omega_study_center')) {
-        window.location.replace('/omega_study_center/' + path.replace(/^\//, ''));
-      } else {
-        // To break the 404 loop on GH Pages, we sometimes need to 
-        // redirect to a query string that GH Pages treats as a request to index.html
-        window.location.replace(path + (path.includes('?') ? '&' : '?') + '404=true');
-      }
+      // Simple redirect to the home page to break the loop
+      // React Router's CatchAll will then handle the redirection 
+      // to /exams or / based on auth status.
+      window.location.replace('/omega_study_center/');
     </script>
   </head>
   <body style="background: #fff; color: #000; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
