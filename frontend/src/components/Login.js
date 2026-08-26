@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import localUsers from "../../users.json";
 import { fetchFresh } from "../fetchFresh";
 
 function userList(data) {
@@ -33,20 +32,22 @@ function credentialsMatch(users, username, password) {
   );
 }
 
-async function loadUsers() {
-  const usersUrl = process.env.REACT_APP_USERS_JSON_URL;
-  if (usersUrl) {
-    try {
-      const res = await fetchFresh(usersUrl, { mode: "cors", referrerPolicy: "origin" });
-      if (res.ok) {
-        const users = parseUsers(await res.json());
-        if (users.length > 0) return users;
-      }
-    } catch (err) {
-      console.error("Error fetching users from S3:", err);
-    }
+async function loadFromUrl(url) {
+  if (!url) return [];
+  try {
+    const res = await fetchFresh(url, { mode: "cors", referrerPolicy: "origin" });
+    if (!res.ok) return [];
+    return parseUsers(await res.json());
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    return [];
   }
-  return parseUsers(localUsers);
+}
+
+async function loadUsers() {
+  const fromS3 = await loadFromUrl(process.env.REACT_APP_USERS_JSON_URL);
+  if (fromS3.length > 0) return fromS3;
+  return loadFromUrl(new URL("users.json", window.location.href).toString());
 }
 
 export default function Login() {
