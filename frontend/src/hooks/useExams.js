@@ -36,17 +36,29 @@ export default function useExams() {
           console.error("Error fetching exams from S3:", err);
           setError(err);
           // Fallback to local file if S3 fetch fails
-          import("../data/exams.json").then((data) => {
-            setExams(data.exams || data);
-            setLoading(false);
-          });
+          fetch("/data/exams.json")
+            .then((res) => res.json())
+            .then((data) => {
+              setExams(data.exams || data);
+              setLoading(false);
+            })
+            .catch((localErr) => {
+              console.error("Local fallback also failed:", localErr);
+              setLoading(false);
+            });
         });
     } else {
-      // Development: load local file
-      import("../data/exams.json").then((data) => {
-        setExams(data.exams || data);
-        setLoading(false);
-      });
+      // Development: load local file from public folder
+      fetch("/data/exams.json")
+        .then((res) => res.json())
+        .then((data) => {
+          setExams(data.exams || data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Local file not found:", err);
+          setLoading(false);
+        });
     }
   }, [s3Url]);
 

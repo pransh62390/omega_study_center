@@ -15,7 +15,7 @@ const CatchAll = () => {
 
 const App = () => {
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL || ""}>
+    <BrowserRouter basename="/omega_study_center">
       <Routes>
         <Route path="/" element={<Login />} />
         <Route

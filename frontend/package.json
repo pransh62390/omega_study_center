@@ -9,15 +9,20 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html --public-url .",
+    "deploy": "npm run build && cp public/.nojekyll dist/.nojekyll && cp public/404.html dist/404.html && gh-pages -d dist",
     "clean": "node clean.js",
     "test": "jest"
   },
   "devDependencies": {
-    "parcel": "^2.16.4"
+    "buffer": "^6.0.3",
+    "gh-pages": "^6.3.0",
+    "parcel": "^2.16.4",
+    "process": "^0.11.10"
   },
   "dependencies": {
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-pdf": "^10.5.0",
     "react-router-dom": "^6.28.0"
   },
   "browserslist": [
