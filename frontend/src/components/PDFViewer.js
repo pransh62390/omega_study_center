@@ -6,6 +6,21 @@ export default function PDFViewer() {
   const { examId, paperId } = useParams();
   const { exams, loading, error } = useExams();
 
+  // 1. Declare all hooks at the top level
+  const [showAnswer, setShowAnswer] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "p" || e.key === "u")) {
+        e.preventDefault();
+        alert("Saving, printing, and viewing source are disabled.");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Default exam/paper if hook fails
   const defaultExam = { id: "", name: "Punjab Lecturer Cadre", papers: [] };
   const defaultPaper = { id: "", name: "", questionPdf: "", answerPdf: "" };
@@ -13,6 +28,7 @@ export default function PDFViewer() {
   const exam = exams.find((e) => e.id === examId) || defaultExam;
   const paper = exam?.papers.find((p) => p.id === paperId) || defaultPaper;
 
+  // 2. Conditional return AFTER all hooks
   if (!exam || !paper || !paper.questionPdf) {
     return (
       <div className="pdf-viewer-page">
@@ -24,9 +40,6 @@ export default function PDFViewer() {
     );
   }
 
-  // Always declare showAnswer state in the same position for React
-  const [showAnswer, setShowAnswer] = React.useState(false);
-
   return (
     <div className="pdf-viewer-page">
       <Link to={`/exams/${examId}`} className="back-link">
@@ -34,33 +47,33 @@ export default function PDFViewer() {
       </Link>
       <h2>{paper.name} - Questions</h2>
 
-      <div
-        className="pdf-container"
-        onContextMenu={(e) => e.preventDefault()}
-        style={{ userSelect: "none" }}
-      >
-        <iframe
-          src={paper.questionPdf}
-          title="Question Paper"
-          className="pdf-frame"
-        />
-      </div>
+       <div
+         className="pdf-container"
+         onContextMenu={(e) => e.preventDefault()}
+         style={{ userSelect: "none" }}
+       >
+         <iframe
+           src={`${paper.questionPdf}#toolbar=0&navpanes=0&scrollbar=1`}
+           title="Question Paper"
+           className="pdf-frame"
+         />
+       </div>
 
       {showAnswer ? (
         <div className="answer-section">
           <h3>Answer Key</h3>
           {paper.answerPdf ? (
-            <div
-              className="pdf-container"
-              onContextMenu={(e) => e.preventDefault()}
-              style={{ userSelect: "none" }}
-            >
-              <iframe
-                src={paper.answerPdf}
-                title="Answer Paper"
-                className="pdf-frame"
-              />
-            </div>
+             <div
+               className="pdf-container"
+               onContextMenu={(e) => e.preventDefault()}
+               style={{ userSelect: "none" }}
+             >
+               <iframe
+                 src={`${paper.answerPdf}#toolbar=0&navpanes=0&scrollbar=1`}
+                 title="Answer Paper"
+                 className="pdf-frame"
+               />
+             </div>
           ) : (
             <div className="pdf-placeholder">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
