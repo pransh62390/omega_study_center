@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
 import useExams from "../hooks/useExams";
+import { fetchFresh } from "../fetchFresh";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -57,7 +58,7 @@ function ReadOnlyPdf({ file, loadingText }) {
     setPdfSource(null);
     setNumPages(0);
 
-    fetch(file, { mode: "cors", referrerPolicy: "origin" })
+    fetchFresh(file, { mode: "cors", referrerPolicy: "origin" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load PDF");
         const contentType = (res.headers.get("content-type") || "").toLowerCase();

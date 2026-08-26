@@ -1,20 +1,49 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import localUsers from "../../users.json";
+import { fetchFresh } from "../fetchFresh";
+
+function userList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.users)) return data.users;
+  return [];
+}
 
 function parseUsers(data) {
-  const list = Array.isArray(data) ? data : data?.users || data?.accounts || [];
-  return list
+  return userList(data)
     .map((entry) => ({
-      username: String(entry.username || entry.user || entry.email || "").trim(),
-      password: String(entry.password || entry.pass || ""),
+      username: String(entry.username || "").trim(),
+      password: String(entry.password || ""),
     }))
     .filter((entry) => entry.username);
+}
+
+function credentialsMatch(users, username, password) {
+  const enteredUser = username.trim();
+  return users.some(
+    (user) => user.username === enteredUser && user.password === password
+  );
 }
 
 function matchesFallback(username, password) {
   const validUser = process.env.REACT_APP_USERNAME;
   const validPass = process.env.REACT_APP_PASSWORD;
   return Boolean(validUser && username === validUser && password === validPass);
+}
+
+async function loadUsers() {
+  const usersUrl = process.env.REACT_APP_USERS_JSON_URL;
+  if (usersUrl) {
+    try {
+      const res = await fetchFresh(usersUrl, { mode: "cors", referrerPolicy: "origin" });
+      if (res.ok) {
+        return parseUsers(await res.json());
+      }
+    } catch (err) {
+      console.error("Error fetching users from S3:", err);
+    }
+  }
+  return parseUsers(localUsers);
 }
 
 export default function Login() {
@@ -35,28 +64,19 @@ export default function Login() {
     setSubmitting(true);
 
     const enteredUser = username.trim();
-    const usersUrl = process.env.REACT_APP_USERS_JSON_URL;
 
     try {
-      if (usersUrl) {
-        const res = await fetch(usersUrl, { mode: "cors", referrerPolicy: "origin" });
-        if (!res.ok) throw new Error("Failed to fetch users");
-        const users = parseUsers(await res.json());
-        const match = users.find(
-          (user) => user.username === enteredUser && user.password === password
-        );
-        if (match) {
-          completeLogin();
-          return;
-        }
-      } else if (matchesFallback(enteredUser, password)) {
+      const users = await loadUsers();
+      if (
+        credentialsMatch(users, enteredUser, password) ||
+        matchesFallback(enteredUser, password)
+      ) {
         completeLogin();
         return;
       }
-
       setError(true);
     } catch (err) {
-      console.error("Error fetching users from S3:", err);
+      console.error("Error checking credentials:", err);
       if (matchesFallback(enteredUser, password)) {
         completeLogin();
         return;

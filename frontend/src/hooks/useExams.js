@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { fetchFresh } from "../fetchFresh";
 
 // Get S3 URL from environment variable
 // Set REACT_APP_EXAMS_JSON_URL in .env to point to your S3 JSON file
@@ -23,7 +24,7 @@ export default function useExams() {
   useEffect(() => {
     if (s3Url) {
       // Fetch from S3
-      fetch(s3Url, { mode: "cors", referrerPolicy: "origin" })
+      fetchFresh(s3Url, { mode: "cors", referrerPolicy: "origin" })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch exams data");
           return res.json();
@@ -36,7 +37,7 @@ export default function useExams() {
           console.error("Error fetching exams from S3:", err);
           setError(err);
           // Fallback to local file if S3 fetch fails
-          fetch("/data/exams.json")
+          fetchFresh("/data/exams.json")
             .then((res) => res.json())
             .then((data) => {
               setExams(data.exams || data);
@@ -49,7 +50,7 @@ export default function useExams() {
         });
     } else {
       // Development: load local file from public folder
-      fetch("/data/exams.json")
+      fetchFresh("/data/exams.json")
         .then((res) => res.json())
         .then((data) => {
           setExams(data.exams || data);
